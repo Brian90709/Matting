@@ -36,5 +36,5 @@ if __name__ == '__main__':
         plt.colorbar()
         plt.xticks([])
         plt.yticks([])
-        plt.savefig(args.save_dir + file)  # 保存熱圖為PNG文件
+        plt.savefig(args.save_dir + file)
         plt.close()

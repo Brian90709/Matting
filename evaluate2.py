@@ -88,8 +88,8 @@ def evaluate(gt, pred):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--gt-dir', type=str, default='/project/g/r10922161/matting_data/NTU_1000/val/alpha')
-    parser.add_argument('--pred-dir', type=str, default='/project/g/r10922161/PaddleSeg/Matting/output/results/PP-Matting_ADE_')
+    parser.add_argument('--gt-dir', type=str, default='/project/g/r10922161/2023/matting_data/NTU_1000/val/alpha')
+    parser.add_argument('--pred-dir', type=str, default='/project/g/r10922161/2023/PaddleSeg/Matting/output/results/PP-Matting_ADE_')
     parser.add_argument('--endswith', type=str, default='_alpha.png')
     parser.add_argument('--inverse', action='store_true', default=True)
     args = parser.parse_args()

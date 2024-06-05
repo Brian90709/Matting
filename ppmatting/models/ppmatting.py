@@ -42,7 +42,7 @@ class PPMatting(nn.Layer):
 
     """
 
-    def __init__(self, backbone, pretrained=None, gf = True):
+    def __init__(self, backbone, pretrained=None, gf=True, use_CoorConv=False):
         super().__init__()
         self.backbone = backbone
         self.pretrained = pretrained
@@ -51,7 +51,8 @@ class PPMatting(nn.Layer):
 
         self.backbone_channels = backbone.feat_channels
 
-        self.scb = SCB(self.backbone_channels[-1])
+        # CoordConv: use coordinate convolution 
+        self.scb = SCB(self.backbone_channels[-1], use_CoorConv)
 
         self.hrdb = HRDB(
             self.backbone_channels[0] + self.backbone_channels[1],
@@ -176,7 +177,7 @@ class PPMatting(nn.Layer):
 
 
 class SCB(nn.Layer):
-    def __init__(self, in_channels, mode = 'CBR'):
+    def __init__(self, in_channels, use_CoordConv):
         super().__init__()
         self.in_channels = [512 + in_channels, 512, 256, 128, 128, 64]
         self.mid_channels = [512, 256, 128, 128, 64, 64]
@@ -204,17 +205,7 @@ class SCB(nn.Layer):
                 dilation=int(i == 0) + 1)
             for i in range(len(self.in_channels) - 1)
         ]
-        if mode == "CBR":
-            scb_list += [
-                nn.Sequential(
-                    layers.ConvBNReLU(
-                        self.in_channels[-1], self.mid_channels[-1], 3, padding=1),
-                    layers.ConvBNReLU(
-                        self.mid_channels[-1], self.mid_channels[-1], 3, padding=1),
-                    nn.Conv2D(
-                        self.mid_channels[-1], self.out_channels[-1], 3, padding=1))
-            ]
-        elif mode == "CCBR":
+        if use_CoordConv:
             scb_list += [
                 nn.Sequential(
                     layers.CoordConvBNReLU(
@@ -224,6 +215,17 @@ class SCB(nn.Layer):
                     layers.CoordConv2D(
                         self.mid_channels[-1], self.out_channels[-1], 3, padding=1))
             ]
+        else:
+            scb_list += [
+                nn.Sequential(
+                    layers.ConvBNReLU(
+                        self.in_channels[-1], self.mid_channels[-1], 3, padding=1),
+                    layers.ConvBNReLU(
+                        self.mid_channels[-1], self.mid_channels[-1], 3, padding=1),
+                    nn.Conv2D(
+                        self.mid_channels[-1], self.out_channels[-1], 3, padding=1))
+            ]
+
         self.scb_stages = nn.LayerList(scb_list)
 
     def forward(self, x):
