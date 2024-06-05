@@ -206,14 +206,14 @@ def train(model,
                         },
                         custom_black_list={'bilinear_interp_v2', 'pad3d'}):
                     logit_dict, loss_dict = ddp_model(
-                        data) if nranks > 1 else model(data)
+                        data) if nranks > 1 else model(data, 'train')
 
                 scaled = scaler.scale(loss_dict['all'])  # scale the loss
                 scaled.backward()  # do backward
                 scaler.minimize(optimizer, scaled)  # update parameters
             else:
                 logit_dict, loss_dict = ddp_model(
-                    data) if nranks > 1 else model(data)
+                    data) if nranks > 1 else model(data, 'train')
                 loss_dict['all'].backward()
                 optimizer.step()
 

@@ -56,8 +56,10 @@ def save_result(alpha,semantic_map,detail_map,path, im_path, trimap=None, fg_est
 
     semantic_save_path = os.path.join(dirname, name + '_semantic.png')
     detail_save_path = os.path.join(dirname, name + '_detail.png')
-    cv2.imwrite(semantic_save_path, semantic_map)
-    cv2.imwrite(detail_save_path, detail_map)
+    if semantic_map is not None:
+        cv2.imwrite(semantic_save_path, semantic_map)
+    if detail_map is not None:
+        cv2.imwrite(detail_save_path, detail_map)
     # save alpha matte
     if trimap is not None:
         trimap = cv2.imread(trimap, 0)
@@ -166,27 +168,22 @@ def predict(model,
             infer_cost_averager.record(time.time() - infer_start)
 
             postprocess_start = time.time()
+
+            detail_map = None
+            semantic_map = None
+            fg = None
             if isinstance(result, paddle.Tensor):
-                alpha = result
-                fg = None
+                alpha = reverse_transform(result, data['trans_info'])
+                alpha = (alpha.numpy()).squeeze()
+                alpha = (alpha * 255).astype('uint8')
             elif isinstance(result, list):
                 result = [((reverse_transform(ele, data['trans_info']).numpy()).squeeze().clip(0, 1) * 255).astype('uint8') for ele in result]
                 alpha = result[0]
                 detail_map = result[1]
                 semantic_map = result[2]
-                fg = None
             else:
                 alpha = result['alpha']
                 fg = result.get('fg', None)
-            # alpha = reverse_transform(alpha, data['trans_info'])
-
-            # alpha = (alpha.numpy()).squeeze()
-            # detail_map = (detail_map.numpy()).squeeze()
-            # alpha = (alpha.numpy()).squeeze()
-
-            # alpha = (alpha.clip(0, 1) * 255).astype('uint8')
-            # detail_map = (detail_map.clip(0, 1) * 255).astype('uint8')
-            # semantic_map = (semantic_map.clip(0, 1) * 255).astype('uint8')
 
             if fg is not None:
                 fg = reverse_transform(fg, data['trans_info'])

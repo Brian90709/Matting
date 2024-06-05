@@ -48,7 +48,7 @@ class MODNet(nn.Layer):
         self.blurer = GaussianBlurLayer(1, 3)
         self.loss_func_dict = None
 
-    def forward(self, inputs):
+    def forward(self, inputs, mode):
         """
         If training, return a dict.
         If evaluation, return the final alpha prediction.

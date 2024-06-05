@@ -1,9 +1,9 @@
-batch_size: 16
-iters: 100000
+batch_size: 8
+iters: 200000
 
 train_dataset:
   type: MattingDataset
-  dataset_root: data/PPM-100
+  dataset_root: /project/g/r10922161/2023/matting_data/NTU_1000
   train_file: train.txt
   transforms:
     - type: LoadImages
@@ -17,12 +17,12 @@ train_dataset:
 
 val_dataset:
   type: MattingDataset
-  dataset_root: data/PPM-100
+  dataset_root: /project/g/r10922161/2023/matting_data/NTU_1000
   val_file: val.txt
   transforms:
     - type: LoadImages
-    - type: ResizeByShort
-      short_size: 512
+    # - type: ResizeByShort
+    #   short_size: 512
     - type: ResizeToIntMult
       mult_int: 32
     - type: Normalize
